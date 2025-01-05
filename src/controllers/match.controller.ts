@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import MatchService from '../services/match.service';
+import { MatchService } from '../services/match.service';
 import { handleErrorResponse } from '../utils/error-handler';
 
 export const createMatch = async (req: Request, res: Response) => {
@@ -15,7 +15,7 @@ export const createMatch = async (req: Request, res: Response) => {
     }
 };
 
-export const getMatchById = async (req: Request, res: Response) => {
+export const getMatchById = async (req: Request, res: Response): Promise<Response | void> => {
     try {
         const { id } = req.params;
         const match = await MatchService.getMatchById(id);

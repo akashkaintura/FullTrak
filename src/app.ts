@@ -1,5 +1,5 @@
 import express from 'express';
-import { connectDatabase } from './config/database';
+import { connectToDatabase } from './config/database';
 import matchRoutes from './routes/match.routes';
 import deliveryRoutes from './routes/delivery.routes';
 import cors from 'cors';
@@ -62,7 +62,7 @@ app.use((err: Error, req: express.Request, res: express.Response, next: express.
 
 // Start Server
 const startServer = async () => {
-    await connectDatabase.connect();
+    await connectToDatabase();
     app.listen(config.PORT, () => {
         logger.info(`Server running on port ${config.PORT}`);
     });
