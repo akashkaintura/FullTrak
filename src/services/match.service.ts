@@ -1,10 +1,19 @@
 import { MatchModel } from '../models/Match.model';
-import mongoose, { Schema, Document } from 'mongoose';
-import mongoosePaginate from 'mongoose-paginate-v2';
+import mongoose from 'mongoose';
 import { MatchDocument } from '../interfaces/match.interface';
 import logger from '../utils/logger';
 
+interface PaginationOptions {
+    page?: number;
+    limit?: number;
+    sort?: Record<string, number>;
+    filter?: Record<string, any>;
+}
+
 class MatchService {
+    /**
+     * Create a new match
+     */
     async createMatch(matchData: Partial<MatchDocument>): Promise<MatchDocument> {
         try {
             const match = new MatchModel(matchData);
@@ -15,6 +24,9 @@ class MatchService {
         }
     }
 
+    /**
+     * Get match by ID with populated teams
+     */
     async getMatchById(matchId: string): Promise<MatchDocument | null> {
         try {
             return await MatchModel.findById(matchId)
@@ -27,22 +39,41 @@ class MatchService {
         }
     }
 
-    async getAllMatches(
-        page: number = 1,
-        limit: number = 10
-    ): Promise<{ matches: MatchDocument[], total: number }> {
+    /**
+     * Get paginated matches with advanced filtering and sorting
+     */
+    async getAllMatches(page: number, limit: number, options: PaginationOptions = {}): Promise<{
+        matches: MatchDocument[];
+        total: number;
+        page: number;
+        totalPages: number;
+    }> {
         try {
-            const options = {
+            const {
+                page = 1,
+                limit = 10,
+                sort = { 'matchDetails.date': -1 },
+                filter = {}
+            } = options;
+
+            const paginationOptions = {
                 page,
                 limit,
-                sort: { 'matchDetails.date': -1 }
+                sort,
+                lean: true,
+                populate: [
+                    { path: 'teams.home', select: 'name' },
+                    { path: 'teams.away', select: 'name' }
+                ]
             };
 
-            const result = await MatchModel.paginate({}, options);
+            const result = await MatchModel.paginate(filter, paginationOptions);
 
             return {
                 matches: result.docs,
-                total: result.totalDocs
+                total: result.totalDocs,
+                page: result.page || 1,
+                totalPages: result.totalPages || 1
             };
         } catch (error) {
             logger.error(`Matches retrieval failed: ${error}`);
@@ -50,6 +81,9 @@ class MatchService {
         }
     }
 
+    /**
+     * Update a match by ID
+     */
     async updateMatch(
         matchId: string,
         updateData: Partial<MatchDocument>

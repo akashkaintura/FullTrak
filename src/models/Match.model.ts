@@ -2,6 +2,21 @@ import mongoose from 'mongoose';
 import mongoosePaginate from 'mongoose-paginate-v2';
 import { MatchDocument, MatchFormat } from '../interfaces/match.interface';
 
+
+interface MatchModelInterface extends mongoose.Model<MatchDocument> {
+    paginate: (
+        query?: any,
+        options?: any
+    ) => Promise<{
+        docs: MatchDocument[];
+        totalDocs: number;
+        limit: number;
+        page?: number;
+        totalPages: number;
+    }>;
+}
+
+
 const MatchSchema = new mongoose.Schema<MatchDocument>({
     matchId: {
         type: String,

@@ -2,10 +2,9 @@ import mongoose from 'mongoose';
 import { config } from '../src/config/environment';
 import logger from '../src/utils/logger';
 
-// Define migration versions
+
 const migrations: { [version: string]: (db: mongoose.Connection) => Promise<void> } = {
     '1.0.0': async (db: mongoose.Connection) => {
-        // Example migration: Add a new field to a collection
         try {
             await db.collection('players').updateMany(
                 {},
@@ -18,7 +17,6 @@ const migrations: { [version: string]: (db: mongoose.Connection) => Promise<void
         }
     },
     '1.1.0': async (db: mongoose.Connection) => {
-        // Another example migration
         try {
             await db.collection('matches').updateMany(
                 { result: { $exists: false } },
@@ -32,20 +30,19 @@ const migrations: { [version: string]: (db: mongoose.Connection) => Promise<void
     }
 };
 
-// Migration tracking collection
-interface MigrationRecord {
-    version: string;
-    appliedAt: Date;
-}
 
 async function runMigrations() {
     try {
-        // Connect to MongoDB
+        if (!config.MONGODB_URI) {
+            throw new Error('MONGODB_URI is not defined in the configuration');
+        }
         const connection = await mongoose.connect(config.MONGODB_URI);
         const db = connection.connection;
         logger.info('Connected to MongoDB for migrations');
 
-        // Ensure migrations collection exists
+        if (!config.MONGODB_URI) {
+            throw new Error('MONGODB_URI is not defined in the configuration');
+        }
         const migrationCollection = db.collection('migrations');
 
         // Get current migration version

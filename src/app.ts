@@ -1,5 +1,5 @@
 import express from 'express';
-import connectDatabase from './config/database';
+import { connectDatabase } from './config/database';
 import matchRoutes from './routes/match.routes';
 import deliveryRoutes from './routes/delivery.routes';
 import cors from 'cors';

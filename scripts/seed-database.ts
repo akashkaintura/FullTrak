@@ -118,7 +118,7 @@ const generateDeliveries = (matchId: string) => [
 async function seedDatabase() {
     try {
         // Connect to MongoDB
-        await mongoose.connect(config.MONGODB_URI);
+        await mongoose.connect(config.MONGODB_URI || 'mongodb://localhost:27017/defaultdb');
         logger.info('Connected to MongoDB');
 
         // Clear existing data
